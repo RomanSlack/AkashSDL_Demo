@@ -1,0 +1,43 @@
+---
+version: "2.0"
+
+services:
+  nodered:
+    image: nodered/node-red:latest
+    env:
+      - TZ=UTC
+      - NODE_RED_ENABLE_PROJECTS=true
+      - NODE_RED_THEME=myCoolTheme
+      - FLOWS=flows.json
+      - NODE_OPTIONS=--max_old_space_size=256
+    expose:
+      - port: 1880
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    nodered:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          - size: 512Mi
+
+  placement:
+    akash:
+      attributes:
+        host: akash
+      pricing:
+        nodered:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  nodered:
+    akash:
+      profile: nodered
+      count: 1

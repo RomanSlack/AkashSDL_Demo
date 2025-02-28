@@ -1,0 +1,74 @@
+############################################
+# 1) ConfigMap
+############################################
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nodered-config
+data:
+  # Node-RED environment variables.
+  # See: https://nodered.org/docs/getting-started/docker#environment-variables
+  TZ: "UTC"
+  NODE_RED_ENABLE_PROJECTS: "true"
+  NODE_RED_THEME: "myCoolTheme"
+
+---
+############################################
+# 2) Deployment
+############################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodered-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodered
+  template:
+    metadata:
+      labels:
+        app: nodered
+    spec:
+      containers:
+        - name: nodered
+          image: nodered/node-red:latest
+          # Node-RED listens on port 1880 by default
+          ports:
+            - containerPort: 1880
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          envFrom:
+            - configMapRef:
+                name: nodered-config
+          # example additional environment variables
+          env:
+            - name: FLOWS
+              value: "flows.json"   # specify flow file name
+            - name: NODE_OPTIONS
+              value: "--max_old_space_size=256"
+      # No volumes --> ephemeral data
+      # Node-RED flows will not persist if the pod restarts
+
+---
+############################################
+# 3) Service
+############################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodered-service
+spec:
+  type: NodePort
+  selector:
+    app: nodered
+  ports:
+    - name: web
+      protocol: TCP
+      port: 1880        # inside container
+      nodePort: 30080   # NodePort on the cluster node

@@ -1,0 +1,37 @@
+---
+version: "2.0"
+
+services:
+  docker-tutorial:
+    image: docker/getting-started:latest
+    expose:
+      - port: 80
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    docker-tutorial:
+      resources:
+        cpu:
+          units: 0.25
+        memory:
+          size: 512Mi
+        storage:
+          - size: 512Mi
+
+  placement:
+    akash:
+      attributes:
+        host: akash
+      pricing:
+        docker-tutorial:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  docker-tutorial:
+    akash:
+      profile: docker-tutorial
+      count: 1

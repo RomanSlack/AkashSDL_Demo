@@ -1,0 +1,50 @@
+---
+version: "2.0"
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    env:
+      - JAVA_OPTS=-Xmx1024m
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+      - port: 50000
+        to:
+          - global: true
+    params:
+      storage:
+        jenkins-home:
+          mount: /var/jenkins_home
+
+profiles:
+  compute:
+    jenkins:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          - name: jenkins-home
+            size: 10Gi
+            attributes:
+              persistent: true
+              class: beta2
+
+  placement:
+    akash:
+      attributes:
+        host: akash
+      pricing:
+        jenkins:
+          denom: uakt
+          amount: 5000
+
+deployment:
+  jenkins:
+    akash:
+      profile: jenkins
+      count: 1

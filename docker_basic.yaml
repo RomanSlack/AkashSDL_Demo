@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docker-getting-started
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docker-getting-started
+  template:
+    metadata:
+      labels:
+        app: docker-getting-started
+    spec:
+      containers:
+        - name: tutorial
+          image: docker/getting-started:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-getting-started-svc
+spec:
+  # NodePort publishes port 80 as e.g. 30080 on each node in the cluster
+  type: NodePort
+  selector:
+    app: docker-getting-started
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
