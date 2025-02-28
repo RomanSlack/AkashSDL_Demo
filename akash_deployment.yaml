@@ -1,0 +1,46 @@
+---
+version: "2.0"
+
+services:
+  mongo:
+    image: mongo
+    args:
+      - "--dbpath"
+      - "/data/db"
+    env:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    params:
+      storage:
+        data:
+          mount: "/data/db"
+
+profiles:
+  compute:
+    mongo:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 1Gi
+        storage:
+          - name: data
+            size: 10Gi
+            attributes:
+              persistent: true
+              class: beta2
+
+  placement:
+    akash:
+      attributes:
+        host: akash
+      pricing:
+        mongo:
+          denom: uakt
+          amount: 1000
+
+deployment:
+  mongo:
+    akash:
+      profile: mongo
+      count: 1

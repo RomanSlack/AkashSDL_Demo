@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "agent_id": "ExaSearch",
+    "created_at": "2025-02-28T12:22:15.500599",
+    "status": "initialized"
+  },
+  "current_sequence": {
+    "action_list": [],
+    "status": "pending",
+    "current_index": 0
+  },
+  "reports": []
+}
